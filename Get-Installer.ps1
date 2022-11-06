@@ -426,6 +426,7 @@ function Get-Installer()
         # Get the most recent tag
         $TagName = $Request `
             | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" } `
+            | Sort-Object -Property tag_name -Descending `
             | Select-Object -First 1 -ExpandProperty tag_name
 
         # Get the assets of the most recent tag
