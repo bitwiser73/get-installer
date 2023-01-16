@@ -18,7 +18,7 @@ function Get-Installer()
             "Name" = "PowerToys"
             "Uri" = "https://github.com/microsoft/PowerToys"
             "Match" = "PowerToysSetup-[0-9\.]+-x64.exe"
-            "Install" = { & $Installer /install /quiet }
+            "Install" = { Start-Process -Wait $Installer /install /quiet }
         },
         @{
             "Name" = @("ripgrep", "rg")
@@ -54,51 +54,51 @@ function Get-Installer()
             "Name" = "Powershell"
             "Uri" = "https://github.com/PowerShell/PowerShell"
             "Match" = "Powershell-[0-9\.]+-win-x64.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = "CMake"
             "Uri" = "https://github.com/Kitware/CMake"
             "Match" = "cmake-[0-9\.]+-windows-x86_64.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
             "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\CMake\bin }
         },
         @{
             "Name" = "Git"
             "Uri" = "https://github.com/git-for-windows/git"
             "Match" = "Git-[0-9\.]+-64-bit.exe"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
             "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\Git\usr\bin }
         },
         @{
             "Name" = "Wincompose"
             "Uri" = "https://github.com/samhocevar/wincompose"
             "Match" = "WinCompose-Setup-[0-9\.]+.exe"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = "Sharpkeys"
             "Uri" = "https://github.com/randyrants/sharpkeys"
             "Match" = "sharpkeys[0-9]+.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = "Nextcloud"
             "Uri" = "https://github.com/nextcloud/desktop"
             "Match" = "Nextcloud-[0-9\.]+-x64.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = @("ProcessHacker", "Process Hacker")
             "Uri" = "https://github.com/processhacker/processhacker"
             "Match" = "processhacker-[0-9\.]+-setup.exe"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = "KeepassXC"
             "Uri" = "https://github.com/keepassxreboot/keepassxc"
             "Match" = "KeePassXC-[0-9\.]+-Win64.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = "Dependencies"
@@ -132,12 +132,12 @@ function Get-Installer()
             "Name" = "Zeal"
             "Uri" = "https://github.com/zealdocs/zeal"
             "Match" = "zeal-[0-9\.]+-windows-x64.msi"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = @("vscode", "Visual Studio Code", "code")
             "Uri" = "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = "HxD"
@@ -161,12 +161,12 @@ function Get-Installer()
         @{
             "Name" = "Element"
             "Uri" = "https://packages.riot.im/desktop/install/win32/x64/Element%20Setup.exe"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = @("ExplorerSuite", "Explorer Suite")
             "Uri" = "https://ntcore.com/files/ExplorerSuite.exe"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = "Rust"
@@ -176,7 +176,7 @@ function Get-Installer()
             "Name" = "p4merge"
             "Uri" = "https://www.perforce.com/downloads/perforce/r22.1/bin.ntx64/p4vinst64.msi"
             "Warning" = "A more recent version could be available, check: https://www.perforce.com/downloads/visual-merge-tool"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
             "Configure" = {
                 & $ENV:PROGRAMFILES\Git\bin\git.exe config --global merge.tool p4mergetool
                 & $ENV:PROGRAMFILES\Git\bin\git.exe config --global mergetool.p4mergetool.cmd "'$ENV:PROGRAMFILES\Perforce\p4merge.exe' `$PWD/`$BASE `$PWD/`$REMOTE `$PWD/`$LOCAL `$PWD/`$MERGED"
@@ -186,19 +186,19 @@ function Get-Installer()
             "Name" = @("Sublime Text", "subl")
             "Uri" = "https://www.sublimetext.com/download_thanks?target=win-x64"
             "Match" = "(https://download.sublimetext.com/sublime_text_build_[0-9\.]+_x64_setup.exe)"
-            "Install" = { & $Installer /silent }
+            "Install" = { Start-Process -Wait $Installer /silent }
         },
         @{
             "Name" = @("Python3", "Python 3")
             "Uri" = "https://www.python.org/downloads/"
             "Match" = "(https://www.python.org/ftp/python/[0-9\.]+/python-[0-9\.]+-amd64\.exe)"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = @("Total Commander", "TotalCommander", "tcmd", "totalcmd")
             "Uri" = "https://www.ghisler.com/download.htm"
             "Match" = "(https://.*tcmd.*x64\.exe)"
-            "Install" = { & $Installer /AHMGDU }
+            "Install" = { Start-Process -Wait $Installer /AHMGDU }
         },
         @{
             "Name" = @("IDA", "IDA Free", "IDA-Free")
@@ -222,29 +222,29 @@ function Get-Installer()
             "Name" = @("7zip", "7-zip", "7z")
             "Uri" = "https://www.7-zip.org/download.html"
             "Match" = "href.*`"(.*/7z[0-9]+-x64\.msi)"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = @("Kerberos", "kfw", "Kerberos for Windows")
             "Uri" = "https://web.mit.edu/kerberos/dist/index.html"
             "Match" = "(kfw/[0-9\.]+/kfw-[0-9\.]+-amd64\.msi)"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
             "Name" = "windirstat"
             "Uri" = "https://windirstat.mirror.wearetriple.com//wds_current_setup.exe"
-            "Install" = { & $Installer /S }
+            "Install" = { Start-Process -Wait $Installer /S }
         },
         @{
             "Name" = "XMind"
             "Uri" = "https://www.xmind.app/zen/download/win64"
             "FileName" = "XMind.exe"
-            "Install" = { & $Installer /allusers /S }
+            "Install" = { Start-Process -Wait $Installer /allusers /S }
         },
         @{
             "Name" = "Firefox"
             "Uri" = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US&_gl=1"
-            "Install" = { & $Installer /quiet }
+            "Install" = { Start-Process -Wait $Installer /quiet }
         }
     )
 
