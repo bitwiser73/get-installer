@@ -290,6 +290,12 @@ function Get-Installer()
                 Remove-PoshGitFromProfile
                 Add-PoshGitToProfile -Force
             }
+        },
+        @{
+            "Name" = "ImHex"
+            "Uri" = "https://github.com/WerWolv/ImHex"
+            "Match" = "imhex-[0-9\.]+-win64\.msi"
+            "Install" = { Start-Process -Wait $Installer /quiet }
         }
     )
 
