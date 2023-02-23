@@ -296,6 +296,11 @@ function Get-Installer()
             "Uri" = "https://github.com/WerWolv/ImHex"
             "Match" = "imhex-[0-9\.]+-win64\.msi"
             "Install" = { Start-Process -Wait $Installer /quiet }
+        },
+        @{
+            "Name" = "rufus"
+            "Uri" = "https://github.com/pbatard/rufus"
+            "Match" = "rufus-[0-9\.]+\.exe"
         }
     )
 
