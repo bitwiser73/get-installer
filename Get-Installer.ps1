@@ -423,13 +423,13 @@ function Get-Installer()
         # Add -UseBasicParsing for compatibility with Powershell 2 vanilla configuration
         $Request = Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json
 
-        # Get the most recent tag
+        # Get the most recent version tag
         $TagName = $Request `
             | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" } `
-            | Sort-Object -Property tag_name -Descending `
+            | Sort-Object -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]+)").value } `
             | Select-Object -First 1 -ExpandProperty tag_name
 
-        # Get the assets of the most recent tag
+        # Get the assets of the most recent version
         $Assets = $Request `
             | Where-Object { $_.tag_name -eq $TagName } `
             | Select-Object -ExpandProperty assets
