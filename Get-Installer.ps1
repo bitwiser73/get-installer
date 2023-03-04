@@ -324,9 +324,9 @@ function Get-Installer()
         }
 
         # For compatibility do not use '[System.IO.Path]::GetRelativePath($Temp, $_)'
-        $Files = Get-ChildItem -Recurse -File $Temp `
+        $Directories = Get-ChildItem -Recurse -Directory $Temp `
             | Foreach-Object { $_.FullName.SubString($Temp.FullName.Length + 1) } `
-            | ForEach-Object { [System.IO.FileInfo]$(Join-Path $Destination $_) }
+            | ForEach-Object { [System.IO.DirectoryInfo]$_ }
 
         # Move files to output directory
         if (-not $(Test-Path $Destination))
@@ -334,20 +334,36 @@ function Get-Installer()
             New-Item -ItemType Container $Destination | Out-Null
         }
 
-        Move-Item -Force "$Temp/*" "$Destination" | Write-Verbose
+        ForEach ($Directory in $Directories)
+        {
+            $Src = Join-Path $Temp $Directory
+            $Dst = Join-Path $Destination $Directory
+            if ((Get-Item $Src) -is [System.IO.DirectoryInfo])
+            {
+                if (-Not $(Test-Path $Dst))
+                {
+                    New-Item -ItemType Container $Dst | Out-Null
+                }
+            }
+        }
 
+        $Files = Get-ChildItem -Recurse -File $Temp `
+            | Foreach-Object { $_.FullName.SubString($Temp.FullName.Length + 1) } `
+            | ForEach-Object { [System.IO.FileInfo]$_ }
+
+        $NewFiles = @()
         ForEach ($File in $Files)
         {
-            Write-Verbose $File
-            if (-not $(Test-Path $File))
-            {
-                Write-Error "Failed to extract: $File"
-            }
+            $Src = Join-Path $Temp $File
+            $Dst = Join-Path $Destination $File
+            Copy-Item -Force -Path $Src -Destination $Dst | Write-Verbose
+
+            $NewFiles += Get-ChildItem $Dst
         }
 
         if ($PassThru)
         {
-            return $Files
+            return $NewFiles
         }
     }
 
