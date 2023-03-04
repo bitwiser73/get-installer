@@ -173,6 +173,15 @@ function Get-Installer()
             "Uri" = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
         },
         @{
+            "Name" = "OSFMount"
+            "Uri" = "https://www.osforensics.com/downloads/osfmount.exe"
+            "Install" = {
+                Start-Process -Wait $Installer /verysilent
+                Start-Sleep 3
+                Stop-Process -Name OSFMount
+            }
+        },
+        @{
             "Name" = "p4merge"
             "Uri" = "https://www.perforce.com/downloads/perforce/r22.1/bin.ntx64/p4vinst64.msi"
             "Warning" = "A more recent version could be available, check: https://www.perforce.com/downloads/visual-merge-tool"
