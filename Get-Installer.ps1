@@ -496,7 +496,12 @@ function Get-Installer()
         Write-Verbose "  Content-Disposition: $($Request.Headers['Content-Disposition'])"
 
         # Try to find a friendly file name
-        if ([String]$Request.Headers['Content-Disposition'] -match "filename=`"(.*)`"")
+        if ($Software.FileName)
+        {
+            $Filename = $Software.FileName
+            Write-Verbose "  => Using filename: $Filename (from software's FileName)"
+        }
+        elseif ([String]$Request.Headers['Content-Disposition'] -match "filename=`"(.*)`"")
         {
             $Filename = $Matches[1]
             Write-Verbose "  => Using filename: $Filename (from 'Content-Disposition')"
@@ -506,11 +511,6 @@ function Get-Installer()
             # Compatibility issue: $Filename = [System.Web.HttpUtility]::UrlDecode($(Split-Path -Leaf $Uri))
             $Filename = [uri]::UnEscapeDataString($(Split-Path -Leaf $Uri))
             Write-Verbose "  => Using filename: $Filename (from software's link)"
-        }
-        elseif ($Software.FileName)
-        {
-            $Filename = $Software.FileName
-            Write-Verbose "  => Using filename: $Filename (from software's FileName)"
         }
         else
         {
