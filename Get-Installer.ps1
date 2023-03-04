@@ -506,7 +506,7 @@ function Get-Installer()
             $Filename = $Matches[1]
             Write-Verbose "  => Using filename: $Filename (from 'Content-Disposition')"
         }
-        elseif ($Uri -match ".*\.[a-zA-Z]+$")  # TODO: improve regex with common extensions
+        elseif ($Uri -match ".*\.[a-zA-Z0-9]+$")
         {
             # Compatibility issue: $Filename = [System.Web.HttpUtility]::UrlDecode($(Split-Path -Leaf $Uri))
             $Filename = [uri]::UnEscapeDataString($(Split-Path -Leaf $Uri))
