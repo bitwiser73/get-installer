@@ -642,8 +642,6 @@ function Get-Installer()
             continue
         }
 
-        Write-Verbose "$($Software.Name[0]): $($Software.Uri)"
-
         if ($Software.Warning)
         {
             Write-Warning "$($Software.Name[0]): $($Software.Warning)"
@@ -651,12 +649,11 @@ function Get-Installer()
 
         if ($Software.Uri -is [ScriptBlock])
         {
-            $Uri = Invoke-Command -ScriptBlock $Software.Uri
+            $Software.Uri = Invoke-Command -ScriptBlock $Software.Uri
         }
-        else
-        {
-            $Uri = $Software.Uri
-        }
+
+        Write-Host "$($Software.Name[0]): $($Software.Uri)"
+        $Uri = $Software.Uri
 
         if ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
         {
