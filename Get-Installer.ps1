@@ -4,7 +4,8 @@ function Get-Installer()
     Param(
         [Parameter(HelpMessage="Software(s) name to download")][String[]]$Name,
         [Parameter(HelpMessage="Download directory")][String]$Destination = ".",
-        [Parameter(HelpMessage="Install downloaded file")][Switch]$Install,
+        [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
+        [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
@@ -59,19 +60,15 @@ function Get-Installer()
             "Name" = "CMake"
             "Uri" = "https://github.com/Kitware/CMake"
             "Match" = "cmake-[0-9\.]+-windows-x86_64.msi"
-            "Install" = {
-                & $Installer /quiet
-                Add-EnvPath $ENV:PROGRAMFILES\CMake\bin
-            }
+            "Install" = { & $Installer /quiet }
+            "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\CMake\bin }
         },
         @{
             "Name" = "Git"
             "Uri" = "https://github.com/git-for-windows/git"
             "Match" = "Git-[0-9\.]+-64-bit.exe"
-            "Install" = {
-                & $Installer /silent
-                Add-EnvPath $ENV:PROGRAMFILES\Git\usr\bin
-            }
+            "Install" = { & $Installer /silent }
+            "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\Git\usr\bin }
         },
         @{
             "Name" = "Wincompose"
@@ -107,8 +104,9 @@ function Get-Installer()
             "Name" = "Dependencies"
             "Uri" = "https://github.com/lucasg/Dependencies"
             "Match" = "Dependencies_x64_Release.zip"
-            "Install" = {
-                Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\Dependencies `
+            "Install" = { Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\Dependencies }
+            "Configure" = {
+                $InstallOutput `
                     | Where-Object { $_.Name -in @("DependenciesGui.exe") } `
                     | ForEach-Object { Register-AppPath $_ }
             }
@@ -117,8 +115,9 @@ function Get-Installer()
             "Name" = "WinObjEx64"
             "Uri" = "https://github.com/hfiref0x/WinObjEx64"
             "Match" = "WinObjEx64_[0-9]+\.[0-9]+\.[0-9]+\.zip"
-            "Install" = {
-                Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\WinObjEx64 `
+            "Install" = { Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\WinObjEx64 }
+            "Configure" = {
+                $InstallOutput `
                     | Where-Object { $_.Name -eq "WinObjEx64.exe" } `
                     | ForEach-Object { Register-AppPath $_ }
             }
@@ -152,11 +151,12 @@ function Get-Installer()
         @{
             "Name" = @("Sysinternals", "SysinternalsSuite", "Sysinternals Suite")
             "Uri" = "https://download.sysinternals.com/files/SysinternalsSuite.zip"
-            "Install" = {
-                Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\SysinternalsSuite `
-                    | Where-Object { $_.Name -in @("procexp.exe", "procmon.exe", "autoruns.exe") } `
-                    | ForEach-Object { Register-AppPath $_ }
-                }
+            "Install" = { Expand-ArchiveFile -PassThru $Installer $ENV:PROGRAMFILES\SysinternalsSuite }
+            "Configure" = {
+                $InstallOutput `
+                  | Where-Object { $_.Name -in @("procexp.exe", "procmon.exe", "autoruns.exe") } `
+                  | ForEach-Object { Register-AppPath $_ }
+            }
         },
         @{
             "Name" = "Element"
@@ -177,6 +177,10 @@ function Get-Installer()
             "Uri" = "https://www.perforce.com/downloads/perforce/r22.1/bin.ntx64/p4vinst64.msi"
             "Warning" = "A more recent version could be available, check: https://www.perforce.com/downloads/visual-merge-tool"
             "Install" = { & $Installer /quiet }
+            "Configure" = {
+                & $ENV:PROGRAMFILES\Git\bin\git.exe config --global merge.tool p4mergetool
+                & $ENV:PROGRAMFILES\Git\bin\git.exe config --global mergetool.p4mergetool.cmd "'$ENV:PROGRAMFILES\Perforce\p4merge.exe' `$PWD/`$BASE `$PWD/`$REMOTE `$PWD/`$LOCAL `$PWD/`$MERGED"
+            }
         },
         @{
             "Name" = @("Sublime Text", "subl")
@@ -575,11 +579,28 @@ function Get-Installer()
         }
     }
 
+    function Configure-Software($Software)
+    {
+        # Set 'Installer' which is expected from user's ScriptBlock
+        $Installer = $Software.Path
+        Write-Host "$($Software.Name[0]): configure '$Installer'"
+
+        if ($Software.Configure -is [ScriptBlock])
+        {
+            Invoke-Command -ScriptBlock $Software.Configure
+        }
+        else
+        {
+            Write-Error "Unsupported configure method"
+        }
+    }
+
     ###
     ### Main
     ###
 
     $ErrorActionPreference = 'Stop'
+    $Configure = $Install -and -not $NoConfigure
 
     # Do not display progress because it will make Invoke-Webrequest very slow
     $ProgressPreference = 'SilentlyContinue'
@@ -607,8 +628,9 @@ function Get-Installer()
         New-Item -ItemType Directory $Destination
     }
 
-    if ($Install)
+    if ($Configure)
     {
+        New-Item -ItemType Container -ErrorAction ignore $ConfigurationDirectory | Out-Null
         Add-EnvPath $BinariesDirectory
     }
 
@@ -713,7 +735,7 @@ function Get-Installer()
         Get-Job | Wait-Job
     }
 
-    if (-not $WhatIfPreference -and $Install)
+    if (-not $WhatIfPreference -and $Install -or $Configure)
     {
         if (-not $(Test-IsAdministrator))
         {
@@ -722,10 +744,16 @@ function Get-Installer()
 
         foreach ($Software in $Downloads)
         {
-            if ($Software.Install)
+            if ($Install -and $Software.Install)
             {
                 Write-Verbose "$($Software.Name[0]): Install $($Software.Path)"
-                Install-Software $Software
+                $InstallOutput = Install-Software $Software
+            }
+
+            if ($Configure -and $Software.Configure)
+            {
+                Write-Verbose "$($Software.Name[0]): Configure $($Software.Path)"
+                Configure-Software $Software
             }
         }
     }
