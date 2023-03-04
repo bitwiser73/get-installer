@@ -270,6 +270,20 @@ function Get-Installer()
                 return "https://inkscape.org/${Msi}"
             }
             "Install" = { Start-Process -Wait $Installer /quiet }
+        },
+        @{
+            "Name" = "posh-git"
+            "Uri" = "https://github.com/dahlbyk/posh-git"
+            "Match" = "v[0-9]+\.[0-9]+\.[0-9]+\.zip"
+            "Install" = {
+                Expand-ArchiveFile -PassThru $Installer $ConfigurationDirectory
+            }
+            "Configure" = {
+                $PoshGit = $InstallOutput | Where-Object { $_.Name -eq "posh-git.psd1" }
+                Import-Module $ConfigurationDirectory/$PoshGit
+                Remove-PoshGitFromProfile
+                Add-PoshGitToProfile -Force
+            }
         }
     )
 
