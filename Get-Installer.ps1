@@ -439,6 +439,17 @@ function Get-Installer()
             | Where-Object { $_.name -match $Software.Match } `
             | Select-Object -First 1
 
+        # Some resources can be plain text files such as powershell script
+        if (-not $Asset)
+        {
+            $Extension = "zip"
+            $Asset = [PSCustomObject]@{
+                name = $Repository.Split("/")[1] + "." + $Extension
+                browser_download_url = `
+                    "https://github.com/${Repository}/archive/refs/tags/${TagName}.${Extension}"
+            }
+        }
+
         $Software.FileName = $Asset.name
         $Software.DownloadUrl = $Asset.browser_download_url
         return $Software
