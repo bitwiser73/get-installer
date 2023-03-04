@@ -584,6 +584,11 @@ function Get-Installer()
     # Do not display progress because it will make Invoke-Webrequest very slow
     $ProgressPreference = 'SilentlyContinue'
 
+    # Get system's updated PATH so any recent changes (from an install...) will be
+    # set in the current session.
+    $ENV:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" `
+        + [System.Environment]::GetEnvironmentVariable("Path","User")
+
     if (-not $Name)
     {
         if (-not $Show)
