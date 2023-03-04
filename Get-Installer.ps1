@@ -182,6 +182,12 @@ function Get-Installer()
             }
         },
         @{
+            "Name" = @("vcredist17", "vcredist_17", "vcredist_17_x64")
+            "Uri" = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+            "FileName" = "vcredist_17_x64.exe"
+            "Install" = { Start-Process -Wait $Installer /quiet }
+        },
+        @{
             "Name" = "p4merge"
             "Uri" = "https://www.perforce.com/downloads/perforce/r22.1/bin.ntx64/p4vinst64.msi"
             "Warning" = "A more recent version could be available, check: https://www.perforce.com/downloads/visual-merge-tool"
