@@ -555,6 +555,7 @@ function Get-RedirectedUrl {
 
         $Repository = $Software.Uri.Substring("https://github.com/".Length)
         $ReleasesApi = "https://api.github.com/repos/$Repository/releases"
+        Write-Verbose "Api: $ReleasesApi"
 
         # Add -UseBasicParsing for compatibility with Powershell 2 vanilla configuration
         $Request = Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json
@@ -683,10 +684,11 @@ function Get-RedirectedUrl {
     {
         # Set 'Installer' which is expected from user's ScriptBlock
         $Installer = $Software.Path
-        Write-Host "$($Software.Name[0]): install '$Installer'"
+        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "install '$Installer'"
 
         if ($Software.Install -is [ScriptBlock])
         {
+            Write-Verbose "$($Software.Install)"
             Invoke-Command -ScriptBlock $Software.Install
         }
         else
@@ -699,10 +701,11 @@ function Get-RedirectedUrl {
     {
         # Set 'Installer' which is expected from user's ScriptBlock
         $Installer = $Software.Path
-        Write-Host "$($Software.Name[0]): configure '$Installer'"
+        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "configure '$Installer'"
 
         if ($Software.Configure -is [ScriptBlock])
         {
+            Write-Verbose "$($Software.Configure)"
             Invoke-Command -ScriptBlock $Software.Configure
         }
         else
@@ -795,7 +798,7 @@ function Get-RedirectedUrl {
             $Software.Uri = Invoke-Command -ScriptBlock $Software.Uri
         }
 
-        Write-Host "$($Software.Name[0]): $($Software.Uri)"
+        Write-Verbose "$($Software.Name[0]): $($Software.Uri)"
         $Uri = $Software.Uri
 
         if ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
@@ -817,7 +820,7 @@ function Get-RedirectedUrl {
     foreach ($Software in $Downloads)
     {
         $Out = Join-Path $(Resolve-Path $Destination) $($Software.FileName -replace " ","_")
-        Write-Host "$($Software.Name[0]): $($Software.DownloadUrl) -> `"$Out`""
+        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "$($Software.DownloadUrl) -> `"$Out`""
 
         if (-not $WhatIfPreference)
         {
