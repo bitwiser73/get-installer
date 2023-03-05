@@ -135,7 +135,7 @@ function Get-Installer()
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
-            "Name" = @("vscode", "Visual Studio Code", "code")
+            "Name" = @("Visual Studio Code", "vscode", "code")
             "Uri" = "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64"
             "Install" = { Start-Process -Wait $Installer /silent }
         },
@@ -182,7 +182,7 @@ function Get-Installer()
             }
         },
         @{
-            "Name" = @("vcredist17", "vcredist_17", "vcredist_17_x64")
+            "Name" = @("vc_redist17", "vc_redist_17", "vcredist_17_x64")
             "Uri" = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
             "FileName" = "vcredist_17_x64.exe"
             "Install" = { Start-Process -Wait $Installer /quiet }
@@ -228,7 +228,7 @@ function Get-Installer()
             "Install" = { Expand-ArchiveFile $Installer -SubPath "release\*" $ENV:PROGRAMFILES\x64dbg }
         },
         @{
-            "Name" = "wireshark"
+            "Name" = "Wireshark"
             "Uri" = "https://www.wireshark.org/download.html"
             "Match" = "(https://.*dl.wireshark.org/win64/Wireshark-win64-[0-9]+\.[0-9]+\.[0-9]+\.exe)"
             "Install" = { Write-Warning "Install manually because of npcap requirement: $Installer" }
@@ -246,7 +246,7 @@ function Get-Installer()
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
-            "Name" = "windirstat"
+            "Name" = "WinDirStat"
             "Uri" = "https://windirstat.mirror.wearetriple.com//wds_current_setup.exe"
             "Install" = { Start-Process -Wait $Installer /S }
         },
@@ -298,7 +298,7 @@ function Get-Installer()
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
-            "Name" = "rufus"
+            "Name" = "Rufus"
             "Uri" = "https://github.com/pbatard/rufus"
             "Match" = "rufus-[0-9\.]+\.exe"
         }
