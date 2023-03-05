@@ -562,7 +562,7 @@ function Get-RedirectedUrl {
         # Get the most recent version tag
         $TagName = $Request `
             | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" } `
-            | Sort-Object -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]+)").value } `
+            | Sort-Object -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value } `
             | Select-Object -First 1 -ExpandProperty tag_name
 
         # Get the assets of the most recent version
