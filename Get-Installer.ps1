@@ -138,6 +138,7 @@ function Get-Installer()
             "Name" = @("Visual Studio Code", "vscode", "code")
             "Uri" = "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64"
             "Install" = { Start-Process -Wait $Installer /silent }
+            "Configure" = { Write-Host "Set as default git editor with: git config --global core.editor `"code --wait`"" }
         },
         @{
             "Name" = "HxD"
