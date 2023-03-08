@@ -7,6 +7,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
+        [Parameter(HelpMessage="Pack installers into an archive")][Switch]$Pack,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
 
@@ -743,6 +744,15 @@ function Get-RedirectedUrl {
         $Name = $null
     }
 
+    if ($Pack)
+    {
+        $Install = $null
+        $NoConfigure = $true
+        $PackDestination = $Destination
+        $PackTemporaryDirectory = New-TemporaryDirectory
+        $Destination = $PackTemporaryDirectory
+    }
+
     if (-not $(Test-Path $Destination))
     {
         New-Item -ItemType Directory $Destination
@@ -876,6 +886,28 @@ function Get-RedirectedUrl {
                 Configure-Software $Software
             }
         }
+    }
+
+    if ($Pack)
+    {
+        $Manifest = @()
+        foreach ($Software in $Downloads)
+        {
+            $Manifest += @{
+                "Name" = $Software.Name
+                "FileName" = $Software.FileName
+                "Url" = $Software.DownloadUrl
+            }
+        }
+
+        $Manifest | ConvertTo-Json | Out-File (Join-Path $PackTemporaryDirectory "manifest.json")
+
+        Get-ChildItem -File $PackTemporaryDirectory | Compress-Archive `
+            -Force `
+            -CompressionLevel NoCompression `
+            -DestinationPath $PackDestination
+
+        Write-Host "Packed into: $PackDestination"
     }
 
     foreach ($NameEntry in $Name)
