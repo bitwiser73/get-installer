@@ -891,7 +891,7 @@ function Get-RedirectedUrl {
     }
 }
 
-If ($MyInvocation.InvocationName -ne ".")
+If ($MyInvocation.CommandOrigin -eq "RunSpace")
 {
     Get-Installer @args
 }
