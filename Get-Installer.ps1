@@ -723,6 +723,14 @@ function Get-RedirectedUrl {
     ### Main
     ###
 
+    if ($Install -and -not (Test-IsAdministrator))
+    {
+        $Arguments = @("-NoExit", "-Command", $MyInvocation.PSCommandPath) + $Args
+        $Arguments = [System.String]::Join(" ", $Arguments)
+        Start-Process $(Get-Process -Pid $PID).Path -Verb RunAs -ArgumentList $Arguments
+        return
+    }
+
     $ErrorActionPreference = 'Stop'
     $Configure = $Install -and -not $NoConfigure
 
