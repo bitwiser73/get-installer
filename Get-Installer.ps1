@@ -369,6 +369,27 @@ function Get-RedirectedUrl {
 
 # ---
 
+    Function TimedPrompt($Prompt, $Timeout)
+    {
+        Write-Host $Prompt
+        for ($i = 0; $i -le ($Timeout * 10); $i++)
+        {
+            if ([Console]::KeyAvailable)
+            {
+                break
+            }
+
+            Start-Sleep -Milliseconds 100
+        }
+
+        if ([Console]::KeyAvailable)
+        {
+            return [Console]::ReadKey($true);
+        }
+
+        return $null
+    }
+
     function Test-IsAdministrator
     {
         $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -725,10 +746,17 @@ function Get-RedirectedUrl {
 
     if ($Install -and -not (Test-IsAdministrator))
     {
-        $Arguments = @("-NoExit", "-Command", $MyInvocation.PSCommandPath) + $Args
-        $Arguments = [System.String]::Join(" ", $Arguments)
-        Start-Process $(Get-Process -Pid $PID).Path -Verb RunAs -ArgumentList $Arguments
-        return
+        $Timeout = 5
+        $AbortUAC = TimedPrompt `
+            "Press any key to cancel UAC elevation (timeout: $($Timeout)s)" `
+            $Timeout
+        if (-not $AbortUAC)
+        {
+            $Arguments = @("-NoExit", "-Command", $MyInvocation.PSCommandPath) + $Args
+            $Arguments = [System.String]::Join(" ", $Arguments)
+            Start-Process $(Get-Process -Pid $PID).Path -Verb RunAs -ArgumentList $Arguments
+            return
+        }
     }
 
     $ErrorActionPreference = 'Stop'
