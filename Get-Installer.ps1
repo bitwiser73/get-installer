@@ -7,7 +7,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
-        [Parameter(HelpMessage="Pack installers into an archive")][Switch]$Pack,
+        [Parameter(HelpMessage="Pack installers into an archive")][Switch]$Package,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
 
@@ -744,13 +744,14 @@ function Get-RedirectedUrl {
         $Name = $null
     }
 
-    if ($Pack)
+    # TODO: do not use temporary directory ?
+    if ($Package)
     {
         $Install = $null
         $NoConfigure = $true
-        $PackDestination = $Destination
-        $PackTemporaryDirectory = New-TemporaryDirectory
-        $Destination = $PackTemporaryDirectory
+        $PackageDestination = $Destination
+        $PackageTemporaryDirectory = New-TemporaryDirectory
+        $Destination = $PackageTemporaryDirectory
     }
 
     if (-not $(Test-Path $Destination))
@@ -888,7 +889,7 @@ function Get-RedirectedUrl {
         }
     }
 
-    if ($Pack)
+    if ($Package)
     {
         $Manifest = @()
         foreach ($Software in $Downloads)
@@ -900,14 +901,14 @@ function Get-RedirectedUrl {
             }
         }
 
-        $Manifest | ConvertTo-Json | Out-File (Join-Path $PackTemporaryDirectory "manifest.json")
+        $Manifest | ConvertTo-Json | Out-File (Join-Path $PackageTemporaryDirectory "manifest.json")
 
-        Get-ChildItem -File $PackTemporaryDirectory | Compress-Archive `
+        Get-ChildItem -File $PackageTemporaryDirectory | Compress-Archive `
             -Force `
             -CompressionLevel NoCompression `
-            -DestinationPath $PackDestination
+            -DestinationPath $PackageDestination
 
-        Write-Host "Packed into: $PackDestination"
+        Write-Host "Packed into: $PackageDestination"
     }
 
     foreach ($NameEntry in $Name)
