@@ -7,7 +7,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
-        [Parameter(HelpMessage="Pack installers into an archive")][Switch]$Package,
+        [Parameter(HelpMessage="Use installers from a package archive")][String]$Package,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
 
@@ -551,6 +551,43 @@ function Get-RedirectedUrl {
         }
     }
 
+    function Get-InstallerFromPackage
+    {
+        Param(
+            [Parameter(Mandatory)]$Path,
+            [Parameter(Mandatory)]$Software
+        )
+
+        Add-Type -assembly "system.io.compression.filesystem"
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
+        $ManifestFile = $zip.Entries | Where-Object { $_.Name -eq "manifest.json" }
+        $StreamReader = New-Object System.IO.StreamReader($ManifestFile.Open())
+        $Content = $StreamReader.ReadToEnd()
+        $Manifest = $Content | ConvertFrom-Json
+
+        ForEach ($Item in $Manifest)
+        {
+            if ($Item.Name -eq $Software.Name)
+            {
+                $Software.FileName = $Item.FileName
+                $Software.DownloadUri = "zip://" + $(Join-Path $Path $Item.FileName)
+                return $Software
+            }
+        }
+
+        #$Manifest | Format-List
+        #$Software
+        #$Software.FileName = $Asset.name
+        #$Software.DownloadUri = $Asset.browser_download_url
+
+        # $App = New-Object -COM 'Shell.Application'
+        # $Item = $App.NameSpace($Path).Items() | Where-Object { $_.Name -like 'manifest.json' }
+        # $Stream = $Item.Open()
+        # $Reader = New-Object System.IO.StreamReader($Stream)
+        # $Manifest = $Reader.ReadToEnd() | ConvertFrom-Json
+        #$Manifest
+    }
+
     function Get-InstallerFromGithub
     {
         Param([Parameter(Mandatory)]$Software)
@@ -590,7 +627,7 @@ function Get-RedirectedUrl {
         }
 
         $Software.FileName = $Asset.name
-        $Software.DownloadUrl = $Asset.browser_download_url
+        $Software.DownloadUri = $Asset.browser_download_url
         return $Software
     }
 
@@ -611,7 +648,7 @@ function Get-RedirectedUrl {
         $Server, $Filename, $Name = $Matches.Values | Select-Object -First 3
 
         $Software.FileName = "$($Name)_$($Filename)"
-        $Software.DownloadUrl = "https://$Server.dl.sourceforge.net/project/$Name/snapshots/$Filename"
+        $Software.DownloadUri = "https://$Server.dl.sourceforge.net/project/$Name/snapshots/$Filename"
         return $Software
     }
 
@@ -678,7 +715,7 @@ function Get-RedirectedUrl {
         }
 
         $Software.FileName = $Filename -replace " ","_"
-        $Software.DownloadUrl = $Uri
+        $Software.DownloadUri = $Uri
         return $Software
     }
 
@@ -744,17 +781,19 @@ function Get-RedirectedUrl {
         $Name = $null
     }
 
-    # TODO: do not use temporary directory ?
-    if ($Package)
+    if ($Destination.EndsWith(".zip"))
     {
-        $Install = $null
-        $NoConfigure = $true
+        if ($Install)
+        {
+            Write-Warning "Install is not available when creating a package"
+            $Install = $false
+        }
+
         $PackageDestination = $Destination
         $PackageTemporaryDirectory = New-TemporaryDirectory
         $Destination = $PackageTemporaryDirectory
     }
-
-    if (-not $(Test-Path $Destination))
+    elseif (-not $(Test-Path $Destination))
     {
         New-Item -ItemType Directory $Destination
     }
@@ -813,7 +852,11 @@ function Get-RedirectedUrl {
         Write-Verbose "$($Software.Name[0]): $($Software.Uri)"
         $Uri = $Software.Uri
 
-        if ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
+        if ($Package)
+        {
+            $Downloads += Get-InstallerFromPackage $Package $Software
+        }
+        elseif ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
         {
             $Downloads += Get-InstallerFromSourceForge $Software
         }
@@ -826,13 +869,13 @@ function Get-RedirectedUrl {
             $Downloads += Get-InstallerFromLink $Software
         }
 
-        Write-Verbose "Download url: $($Software.DownloadUrl), filename: $($Software.FileName)"
+        Write-Verbose "Download url: $($Software.DownloadUri), filename: $($Software.FileName)"
     }
 
     foreach ($Software in $Downloads)
     {
         $Out = Join-Path $(Resolve-Path $Destination) $($Software.FileName -replace " ","_")
-        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "$($Software.DownloadUrl) -> `"$Out`""
+        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "$($Software.DownloadUri) -> `"$Out`""
 
         if (-not $WhatIfPreference)
         {
@@ -845,14 +888,17 @@ function Get-RedirectedUrl {
             {
                 if (-Not $Parallel)
                 {
-                    Invoke-WebRequest -UseBasicParsing $Software.DownloadUrl -Out $Out
+                    # split at .zip from the beginning
+                    # => use zip scheme
+
+                    Invoke-WebRequest -UseBasicParsing $Software.DownloadUri -Out $Out
                     $Software["Path"] = $Out
                 }
                 else
                 {
                     # FIXME: any Ctrl+C would break without removing the jobs
                     $Software["Path"] = $Out
-                    $Source = $Software.DownloadUrl
+                    $Source = $Software.DownloadUri
                     Start-Job -Name "GET $($Software.Name[0].ToUpper())" {
                         Invoke-WebRequest -UseBasicParsing $using:Source -Out $using:Out
                     }
@@ -889,7 +935,7 @@ function Get-RedirectedUrl {
         }
     }
 
-    if ($Package)
+    if ($PackageDestination)
     {
         $Manifest = @()
         foreach ($Software in $Downloads)
@@ -897,7 +943,7 @@ function Get-RedirectedUrl {
             $Manifest += @{
                 "Name" = $Software.Name
                 "FileName" = $Software.FileName
-                "Url" = $Software.DownloadUrl
+                "Url" = $Software.DownloadUri
             }
         }
 
@@ -908,7 +954,7 @@ function Get-RedirectedUrl {
             -CompressionLevel NoCompression `
             -DestinationPath $PackageDestination
 
-        Write-Host "Packed into: $PackageDestination"
+        Write-Host "New package: $PackageDestination"
     }
 
     foreach ($NameEntry in $Name)
