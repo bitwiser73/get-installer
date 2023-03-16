@@ -614,7 +614,7 @@ function Get-RedirectedUrl {
         }
 
         $Software.FileName = $Asset.name
-        $Software.DownloadUrl = $Asset.browser_download_url
+        $Software.DownloadUri = $Asset.browser_download_url
         return $Software
     }
 
@@ -635,7 +635,7 @@ function Get-RedirectedUrl {
         $Server, $Filename, $Name = $Matches.Values | Select-Object -First 3
 
         $Software.FileName = "$($Name)_$($Filename)"
-        $Software.DownloadUrl = "https://$Server.dl.sourceforge.net/project/$Name/snapshots/$Filename"
+        $Software.DownloadUri = "https://$Server.dl.sourceforge.net/project/$Name/snapshots/$Filename"
         return $Software
     }
 
@@ -702,7 +702,7 @@ function Get-RedirectedUrl {
         }
 
         $Software.FileName = $Filename -replace " ","_"
-        $Software.DownloadUrl = $Uri
+        $Software.DownloadUri = $Uri
         return $Software
     }
 
@@ -855,13 +855,13 @@ function Get-RedirectedUrl {
             $Downloads += Get-InstallerFromLink $Software
         }
 
-        Write-Verbose "Download url: $($Software.DownloadUrl), filename: $($Software.FileName)"
+        Write-Verbose "Download url: $($Software.DownloadUri), filename: $($Software.FileName)"
     }
 
     foreach ($Software in $Downloads)
     {
         $Out = Join-Path $(Resolve-Path $Destination) $($Software.FileName -replace " ","_")
-        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "$($Software.DownloadUrl) -> `"$Out`""
+        Write-Host "$($Software.Name[0]): " -ForegroundColor Yellow -NoNewline; Write-Host "$($Software.DownloadUri) -> `"$Out`""
 
         if (-not $WhatIfPreference)
         {
@@ -874,14 +874,14 @@ function Get-RedirectedUrl {
             {
                 if (-Not $Parallel)
                 {
-                    Invoke-WebRequest -UseBasicParsing $Software.DownloadUrl -Out $Out
+                    Invoke-WebRequest -UseBasicParsing $Software.DownloadUri -Out $Out
                     $Software["Path"] = $Out
                 }
                 else
                 {
                     # FIXME: any Ctrl+C would break without removing the jobs
                     $Software["Path"] = $Out
-                    $Source = $Software.DownloadUrl
+                    $Source = $Software.DownloadUri
                     Start-Job -Name "GET $($Software.Name[0].ToUpper())" {
                         Invoke-WebRequest -UseBasicParsing $using:Source -Out $using:Out
                     }
