@@ -39,10 +39,14 @@ function Get-Installer()
             "Install" = { Expand-ArchiveFile $Installer -Include @("fd.exe", "_fd.ps1") $BinariesDirectory }
         },
         @{
-            "Name" = "Nushell"
+            "Name" = @("Nushell", "nu")
             "Uri" = "https://github.com/nushell/nushell"
-            "Match" = "nu-[0-9\.]+-x86_64-pc-windows-msvc.zip"
-            "Install" = { Expand-ArchiveFile $Installer $ENV:PROGRAMFILES\Nushell }
+            "Match" = "nu-[0-9\.]+-x86_64-pc-windows-msvc.msi"
+            "Install" = {
+                Start-Process -Wait $Installer /quiet
+                Add-EnvPath $ENV:PROGRAMFILES\nu\bin
+                Register-AppPath $ENV:PROGRAMFILES\nu\bin\nu.exe
+            }
         },
         @{
             "Name" = "Ghidra"
