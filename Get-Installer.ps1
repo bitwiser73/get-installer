@@ -783,7 +783,19 @@ function Get-RedirectedUrl {
         $Name = $null
     }
 
-    if (-not $(Test-Path $Destination))
+    if ($Destination.EndsWith(".zip"))
+    {
+        if ($Install)
+        {
+            Write-Warning "Install is not available when creating a package"
+            $Install = $false
+        }
+
+        $PackageDestination = $Destination
+        $PackageTemporaryDirectory = New-TemporaryDirectory
+        $Destination = $PackageTemporaryDirectory
+    }
+    elseif (-not $(Test-Path $Destination))
     {
         New-Item -ItemType Directory $Destination
     }
@@ -916,6 +928,28 @@ function Get-RedirectedUrl {
                 Configure-Software $Software
             }
         }
+    }
+
+    if ($PackageDestination)
+    {
+        $Manifest = @()
+        foreach ($Software in $Downloads)
+        {
+            $Manifest += @{
+                "Name" = $Software.Name
+                "FileName" = $Software.FileName
+                "Url" = $Software.DownloadUri
+            }
+        }
+
+        $Manifest | ConvertTo-Json | Out-File (Join-Path $PackageTemporaryDirectory "manifest.json")
+
+        Get-ChildItem -File $PackageTemporaryDirectory | Compress-Archive `
+            -Force `
+            -CompressionLevel NoCompression `
+            -DestinationPath $PackageDestination
+
+        Write-Host "New package: $PackageDestination"
     }
 
     foreach ($NameEntry in $Name)
