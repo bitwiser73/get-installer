@@ -7,6 +7,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
+        [Parameter(HelpMessage="Use installers from a package archive")][String]$Package,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
 
@@ -575,6 +576,31 @@ function Get-RedirectedUrl {
         }
     }
 
+    function Get-InstallerFromPackage
+    {
+        Param(
+            [Parameter(Mandatory)]$Path,
+            [Parameter(Mandatory)]$Software
+        )
+
+        Add-Type -assembly "system.io.compression.filesystem"
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
+        $ManifestFile = $zip.Entries | Where-Object { $_.Name -eq "manifest.json" }
+        $StreamReader = New-Object System.IO.StreamReader($ManifestFile.Open())
+        $Content = $StreamReader.ReadToEnd()
+        $Manifest = $Content | ConvertFrom-Json
+
+        ForEach ($Item in $Manifest)
+        {
+            if ($Item.Name -eq $Software.Name)
+            {
+                $Software.FileName = $Item.FileName
+                $Software.DownloadUri = "zip://" + $(Join-Path $Path $Item.FileName)
+                return $Software
+            }
+        }
+    }
+
     function Get-InstallerFromGithub
     {
         Param([Parameter(Mandatory)]$Software)
@@ -740,6 +766,43 @@ function Get-RedirectedUrl {
         }
     }
 
+    function Get-File($Software, $Out)
+    {
+        if ($Software.DownloadUri.StartsWith("zip://"))
+        {
+            $PathItems = $Software.DownloadUri.SubString(6) -Split "\\|/"
+
+            $ArchivePath = @()
+            $ArchiveItemPath = @()
+            ForEach ($PathItem in $PathItems)
+            {
+                $Path = $ArchivePath -Join "\"
+
+                if (-Not $Path -or ((Get-Item $Path) -is [System.IO.DirectoryInfo]))
+                {
+                    $ArchivePath += $PathItem
+                }
+                else
+                {
+                    $ArchiveItemPath += $PathItem
+                }
+            }
+
+            $ArchivePath = $ArchivePath -Join "\"
+            $ArchiveItemPath = $ArchiveItemPath -Join "\"
+
+            $Archive = [IO.Compression.ZipFile]::OpenRead($ArchivePath)
+            $ArchiveItem = $Archive.Entries.Where({ $_.FullName -eq $ArchiveItemPath }, 'First')
+            [IO.Compression.ZipFileExtensions]::ExtractToFile( $ArchiveItem[0], $Out )
+        }
+        else
+        {
+            Invoke-WebRequest -UseBasicParsing $Software.DownloadUri -Out $Out
+        }
+
+        $Software["Path"] = $Out
+    }
+
     ###
     ### Main
     ###
@@ -854,7 +917,11 @@ function Get-RedirectedUrl {
         Write-Verbose "$($Software.Name[0]): $($Software.Uri)"
         $Uri = $Software.Uri
 
-        if ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
+        if ($Package)
+        {
+            $Downloads += Get-InstallerFromPackage $Package $Software
+        }
+        elseif ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
         {
             $Downloads += Get-InstallerFromSourceForge $Software
         }
@@ -884,20 +951,7 @@ function Get-RedirectedUrl {
             }
             else
             {
-                if (-Not $Parallel)
-                {
-                    Invoke-WebRequest -UseBasicParsing $Software.DownloadUri -Out $Out
-                    $Software["Path"] = $Out
-                }
-                else
-                {
-                    # FIXME: any Ctrl+C would break without removing the jobs
-                    $Software["Path"] = $Out
-                    $Source = $Software.DownloadUri
-                    Start-Job -Name "GET $($Software.Name[0].ToUpper())" {
-                        Invoke-WebRequest -UseBasicParsing $using:Source -Out $using:Out
-                    }
-                }
+                Get-File $Software $Out
             }
         }
     }
