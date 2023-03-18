@@ -997,6 +997,7 @@ function Get-RedirectedUrl {
         }
 
         $Manifest | ConvertTo-Json | Out-File (Join-Path $RepositoryTemporaryDirectory "manifest.json")
+        Get-Content $MyInvocation.PSCommandPath | Out-File (Join-Path $RepositoryTemporaryDirectory "Get-Installer.ps1")
 
         Get-ChildItem -File $RepositoryTemporaryDirectory | Compress-Archive `
             -Force `
