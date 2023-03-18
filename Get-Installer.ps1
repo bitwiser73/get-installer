@@ -3,11 +3,11 @@ function Get-Installer()
     [CmdletBinding(SupportsShouldProcess)]
     Param(
         [Parameter(HelpMessage="Software(s) name to download")][String[]]$Name,
-        [Parameter(HelpMessage="Download directory")][String]$Destination = ".",
+        [Parameter(HelpMessage="Download directory or repository zip file")][String]$Destination = ".",
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
-        [Parameter(HelpMessage="Use installers from a package archive")][String]$Package,
+        [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository,
         [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
     )
 
@@ -576,7 +576,7 @@ function Get-RedirectedUrl {
         }
     }
 
-    function Get-InstallerFromPackage
+    function Get-InstallerFromRepository
     {
         Param(
             [Parameter(Mandatory)]$Path,
@@ -850,13 +850,13 @@ function Get-RedirectedUrl {
     {
         if ($Install)
         {
-            Write-Warning "Install is not available when creating a package"
+            Write-Warning "Install is not available when creating a repository archive"
             $Install = $false
         }
 
-        $PackageDestination = $Destination
-        $PackageTemporaryDirectory = New-TemporaryDirectory
-        $Destination = $PackageTemporaryDirectory
+        $RepositoryDestination = $Destination
+        $RepositoryTemporaryDirectory = New-TemporaryDirectory
+        $Destination = $RepositoryTemporaryDirectory
     }
     elseif (-not $(Test-Path $Destination))
     {
@@ -917,9 +917,9 @@ function Get-RedirectedUrl {
         Write-Verbose "$($Software.Name[0]): $($Software.Uri)"
         $Uri = $Software.Uri
 
-        if ($Package)
+        if ($Repository)
         {
-            $Downloads += Get-InstallerFromPackage $Package $Software
+            $Downloads += Get-InstallerFromRepository $Repository $Software
         }
         elseif ($Uri -match "https://sourceforge.net/projects/[^/]+/files/snapshots")
         {
@@ -984,7 +984,7 @@ function Get-RedirectedUrl {
         }
     }
 
-    if ($PackageDestination)
+    if ($RepositoryDestination)
     {
         $Manifest = @()
         foreach ($Software in $Downloads)
@@ -996,14 +996,14 @@ function Get-RedirectedUrl {
             }
         }
 
-        $Manifest | ConvertTo-Json | Out-File (Join-Path $PackageTemporaryDirectory "manifest.json")
+        $Manifest | ConvertTo-Json | Out-File (Join-Path $RepositoryTemporaryDirectory "manifest.json")
 
-        Get-ChildItem -File $PackageTemporaryDirectory | Compress-Archive `
+        Get-ChildItem -File $RepositoryTemporaryDirectory | Compress-Archive `
             -Force `
             -CompressionLevel NoCompression `
-            -DestinationPath $PackageDestination
+            -DestinationPath $RepositoryDestination
 
-        Write-Host "New package: $PackageDestination"
+        Write-Host "New repository: $RepositoryDestination"
     }
 
     foreach ($NameEntry in $Name)
