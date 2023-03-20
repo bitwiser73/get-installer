@@ -61,7 +61,7 @@ function Get-Installer()
             "Install" = { Expand-ArchiveFile $Installer -SubPath "ghidra*/*" $ENV:PROGRAMFILES\Ghidra }
         },
         @{
-            "Name" = "Powershell"
+            "Name" = @("Powershell", "pwsh")
             "Uri" = "https://github.com/PowerShell/PowerShell"
             "Match" = "Powershell-[0-9\.]+-win-x64.msi"
             "Install" = { Start-Process -Wait $Installer /quiet }
