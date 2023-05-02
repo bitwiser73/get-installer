@@ -183,7 +183,7 @@ function Get-Installer()
             "Install" = {
                 Start-Process -Wait $Installer /verysilent
                 Start-Sleep 3
-                Stop-Process -Name OSFMount
+                Stop-Process -Name OSFMount | Out-Null
             }
         },
         @{
