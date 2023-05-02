@@ -1026,7 +1026,14 @@ function Get-RedirectedUrl {
         }
 
         $Manifest | ConvertTo-Json | Out-File (Join-Path $RepositoryTemporaryDirectory "manifest.json")
-        Get-Content $MyInvocation.PSCommandPath | Out-File (Join-Path $RepositoryTemporaryDirectory "Get-Installer.ps1")
+
+        $ScriptPath = $MyInvocation.MyCommand.Path
+        if (-not $ScriptPath)
+        {
+            $ScriptPath = $GetInstallerScriptPath
+        }
+
+        Get-Content $ScriptPath | Out-File (Join-Path $RepositoryTemporaryDirectory "Get-Installer.ps1")
 
         Get-ChildItem -File $RepositoryTemporaryDirectory | Compress-Archive `
             -Force `
@@ -1044,6 +1051,8 @@ function Get-RedirectedUrl {
         }
     }
 }
+
+$GetInstallerScriptPath = $MyInvocation.MyCommand.Path
 
 If ($MyInvocation.CommandOrigin -eq "RunSpace")
 {
