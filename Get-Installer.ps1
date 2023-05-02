@@ -25,6 +25,7 @@ function Get-Installer()
             "Uri" = "https://github.com/BurntSushi/ripgrep"
             "Match" = "ripgrep-[0-9\.]+-i686-pc-windows-msvc.zip"
             "Install" = { Expand-ArchiveFile $Installer -Include @("rg.exe", "_rg.ps1") $BinariesDirectory }
+            "Configure" = { Write-Host "Enable completion with: Import-Module `"$BinariesDirectory\_rg.ps1`"" }
         },
         @{
             "Name" = "jq"
