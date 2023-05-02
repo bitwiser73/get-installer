@@ -344,8 +344,14 @@ function Get-Installer()
                     $wshell.Sendkeys('{ENTER}') ; Sleep 1
                 }
 
-                Sleep 5 ; $wshell.Sendkeys('{ENTER}')
+                Start-Sleep 5 ; $wshell.Sendkeys('{ENTER}')
             }
+        },
+        @{
+            "Name" = @("vlc", "videolan")
+            "Uri" = "https://mirrors.ircam.fr/pub/videolan/vlc/last/win64/"
+            "Match" = "(vlc-[0-9\.]+-win64.msi)"
+            "Install" = { Start-Process -Wait $Installer /quiet }
         }
     )
 
