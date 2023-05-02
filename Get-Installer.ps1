@@ -3,7 +3,7 @@ function Get-Installer()
     [CmdletBinding(SupportsShouldProcess)]
     Param(
         [Parameter(HelpMessage="Software(s) name to download")][String[]]$Name,
-        [Parameter(HelpMessage="Download directory or repository zip file")][String]$Destination = ".",
+        [Parameter(HelpMessage="Download directory or repository zip file")][String]$Destination = $DownloadsPath,
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
@@ -1092,6 +1092,7 @@ function Get-RedirectedUrl {
 }
 
 $GetInstallerScriptPath = $MyInvocation.MyCommand.Path
+$DownloadsPath = (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path
 
 If ($MyInvocation.CommandOrigin -eq "RunSpace")
 {
