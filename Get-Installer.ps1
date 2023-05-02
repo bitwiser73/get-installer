@@ -325,6 +325,26 @@ function Get-Installer()
             "Uri" = "https://github.com/VirusTotal/yara"
             "Match" = "yara-[0-9\.-]+-win64\.zip"
             "Install" = { Expand-ArchiveFile $Installer $BinariesDirectory }
+        },
+        @{
+            "Name" = @("System Informer", "systeminformer", "si")
+            "Uri" = "https://github.com/winsiderss/si-builds"
+            "Match" = "systeminformer-[0-9\.]+-setup.exe"
+            "Install" = {
+                & $Installer ; Sleep 1
+
+                $wshell.AppActivate('System Informer - Setup')
+                $wshell.Sendkeys('{ENTER}') ; Sleep 1
+                $wshell.Sendkeys('{RIGHT}') ; Sleep 1
+                $wshell.Sendkeys('{ENTER}') ; Sleep 1
+                if (Test-Path $ENV:PROGRAMFILES\SystemInformer)
+                {
+                    $wshell.Sendkeys('{RIGHT}') ; Sleep 1
+                    $wshell.Sendkeys('{ENTER}') ; Sleep 1
+                }
+
+                Sleep 5 ; $wshell.Sendkeys('{ENTER}')
+            }
         }
     )
 
