@@ -988,7 +988,7 @@ function Get-RedirectedUrl {
         Get-Job | Wait-Job
     }
 
-    if (-not $WhatIfPreference -and $Install -or $Configure)
+    if (-not $WhatIfPreference -and ($Install -or $Configure))
     {
         if (-not $(Test-IsAdministrator))
         {
