@@ -7,8 +7,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
-        [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository,
-        [Parameter(HelpMessage="Enable parallel downloads")][Switch]$Parallel
+        [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository
     )
 
     $ConfigurationDirectory = "$ENV:USERPROFILE\.getinstaller"
@@ -992,11 +991,6 @@ function Get-RedirectedUrl {
                 Get-File $Software $Out
             }
         }
-    }
-
-    if ($Parallel)
-    {
-        Get-Job | Wait-Job
     }
 
     if (-not $WhatIfPreference -and ($Install -or $Configure))
