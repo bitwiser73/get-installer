@@ -79,7 +79,7 @@ function Get-Installer()
             "Name" = "Wincompose"
             "Uri" = "https://github.com/samhocevar/wincompose"
             "Match" = "WinCompose-Setup-[0-9\.]+.exe"
-            "Install" = { Start-Process -Wait $Installer /silent }
+            "Install" = { Start-Process -PassThru $Installer -ArgumentList "/silent" | Wait-Process }
         },
         @{
             "Name" = "Sharpkeys"
