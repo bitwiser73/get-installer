@@ -37,7 +37,11 @@ function Get-Installer()
             "Name" = "fd"
             "Uri" = "https://github.com/sharkdp/fd"
             "Match" = "fd-v[0-9\.]+-i686-pc-windows-msvc.zip"
-            "Install" = { Expand-ArchiveFile $Installer -Include @("fd.exe", "_fd.ps1") $BinariesDirectory }
+            "Install" = {
+                Expand-ArchiveFile $Installer -Include @("fd.exe", "fd.ps1") $BinariesDirectory
+                Move-Item "$BinariesDirectory/fd.ps1" "$BinariesDirectory/_fd.ps1"
+            }
+            "Configure" = { Write-Host "Enable completion with: Import-Module `"$BinariesDirectory\_fd.ps1`"" }
         },
         @{
             "Name" = @("Nushell", "nu")
