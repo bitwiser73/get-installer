@@ -858,7 +858,6 @@ function Get-RedirectedUrl {
         }
     }
 
-    $ErrorActionPreference = 'Stop'
     $Configure = $Install -and -not $NoConfigure
 
     # Do not display progress because it will make Invoke-Webrequest very slow
