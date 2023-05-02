@@ -919,7 +919,11 @@ function Get-RedirectedUrl {
             $Found += $Software
         }
 
-        $Found | Select-Object -Property Name, Uri | Sort-Object -Property Name
+        # Compatibility with powershell 5
+        $Found | `
+            ForEach-Object { New-Object PSObject -Property @{Name=$_.Name;Uri=$_.Uri} } | `
+            Select-Object -Property Name, Uri | `
+            Sort-Object -Property Name
         return
     }
 
