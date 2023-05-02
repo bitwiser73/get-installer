@@ -300,7 +300,7 @@ function Get-Installer()
         @{
             "Name" = "ImHex"
             "Uri" = "https://github.com/WerWolv/ImHex"
-            "Match" = "imhex-[0-9\.]+-win64\.msi"
+            "Match" = "imhex-[0-9\.]+-Windows-x86_64\.msi"
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
