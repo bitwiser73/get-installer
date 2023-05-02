@@ -248,7 +248,14 @@ function Get-Installer()
             "Name" = @("Kerberos", "kfw", "Kerberos for Windows")
             "Uri" = "https://web.mit.edu/kerberos/dist/index.html"
             "Match" = "(kfw/[0-9\.]+/kfw-[0-9\.]+-amd64\.msi)"
-            "Install" = { Start-Process -Wait $Installer /quiet }
+            "Install" = {
+                Start-Process -Wait $Installer "/quiet /norestart"
+                Write-Host "To configure firefox to use the gssapi:`n" `
+                    "  network.negotiate-auth.trusted-uris: .au.adaltas.cloud`n" `
+                    "  network.auth.use-sspi: false`n" `
+                    "  network.negotiate-auth.using-native-gsslib: false`n" `
+                    "  network.negotiate-auth.gsslib: C:\Program Files\MIT\Kerberos\bin\gssapi64.dll"
+            }
         },
         @{
             "Name" = "WinDirStat"
