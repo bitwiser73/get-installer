@@ -292,9 +292,10 @@ function Get-Installer()
             }
             "Configure" = {
                 $PoshGit = $InstallOutput | Where-Object { $_.Name -eq "posh-git.psd1" }
-                Import-Module $ConfigurationDirectory/$PoshGit
+                Import-Module $PoshGit
                 Remove-PoshGitFromProfile
                 Add-PoshGitToProfile -Force
+                Write-Host "Get two lines prompt with: `$GitPromptSettings.DefaultPromptBeforeSuffix.Text = '``n'"
             }
         },
         @{
