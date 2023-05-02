@@ -803,6 +803,35 @@ function Get-RedirectedUrl {
         $Software["Path"] = $Out
     }
 
+    function RefreshPathEnvironmentVariable
+    {
+        <#
+            .SYNOPSIS
+                Update PATH current environment variable with new values from system
+
+            .DESCRIPTION
+                Get system's updated PATH so any recent changes (from an install...) will be set in the current
+                session. Keep any PATH value from local environment defined in the new PATH.
+        #>
+
+        [System.Collections.ArrayList]$SystemPath = `
+            [System.Environment]::GetEnvironmentVariable("Path","Machine") `
+            + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") `
+            -split ";"
+
+        $EnvPath = $ENV:PATH -split ";"
+        for ($i=0; $i -lt $EnvPath.Count; $i++)
+        {
+            if ($EnvPath[$i] -notin $SystemPath)
+            {
+                $SystemPath.Insert($i, $EnvPath[$i])
+            }
+        }
+
+        $ENV:PATH = $SystemPath -join ";"
+    }
+
+
     ###
     ### Main
     ###
@@ -828,10 +857,8 @@ function Get-RedirectedUrl {
     # Do not display progress because it will make Invoke-Webrequest very slow
     $ProgressPreference = 'SilentlyContinue'
 
-    # Get system's updated PATH so any recent changes (from an install...) will be
-    # set in the current session.
-    $ENV:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" `
-        + [System.Environment]::GetEnvironmentVariable("Path","User")
+    # Get system's updated PATH so any recent changes (from an install...) will be set in the current session.
+    RefreshPathEnvironmentVariable
 
     if (-not $Name)
     {
@@ -981,6 +1008,8 @@ function Get-RedirectedUrl {
                 Write-Verbose "$($Software.Name[0]): Configure $($Software.Path)"
                 Configure-Software $Software
             }
+
+            RefreshPathEnvironmentVariable
         }
     }
 
