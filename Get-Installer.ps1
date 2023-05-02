@@ -7,7 +7,8 @@ function Get-Installer()
         [Parameter(HelpMessage="Install and configure software")][Switch]$Install,
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
-        [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository
+        [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository,
+        [Parameter(HelpMessage="Overwrite existing downloads")][Switch]$Force
     )
 
     $ConfigurationDirectory = "$ENV:USERPROFILE\.getinstaller"
@@ -1022,7 +1023,7 @@ function Get-RedirectedUrl {
 
         if (-not $WhatIfPreference)
         {
-            if (Test-Path $Out)
+            if (-not $Force -and (Test-Path $Out))
             {
                 Write-Warning "$($Software.Name[0]): use existing file '$Out'"
                 $Software["Path"] = $Out
