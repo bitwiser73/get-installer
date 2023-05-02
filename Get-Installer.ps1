@@ -187,9 +187,9 @@ function Get-Installer()
             }
         },
         @{
-            "Name" = @("vc_redist17", "vc_redist_17", "vcredist_17_x64")
+            "Name" = @("vcredist", "vcredist17", "vcredist17_x64")
             "Uri" = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-            "FileName" = "vcredist_17_x64.exe"
+            "FileName" = "vcredist17_x64.exe"
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
