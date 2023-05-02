@@ -260,7 +260,7 @@ function Get-Installer()
             "Name" = "XMind"
             "Uri" = "https://www.xmind.app/zen/download/win64"
             "FileName" = "XMind.exe"
-            "Install" = { Start-Process -Wait $Installer /allusers /S }
+            "Install" = { Start-Process -Wait $Installer "/allusers /S" }
         },
         @{
             "Name" = "Firefox"
