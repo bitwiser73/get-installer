@@ -319,6 +319,12 @@ function Get-Installer()
             "Name" = "Rufus"
             "Uri" = "https://github.com/pbatard/rufus"
             "Match" = "rufus-[0-9\.]+\.exe"
+        },
+        @{
+            "Name" = "yara"
+            "Uri" = "https://github.com/VirusTotal/yara"
+            "Match" = "yara-[0-9\.-]+-win64\.zip"
+            "Install" = { Expand-ArchiveFile $Installer $BinariesDirectory }
         }
     )
 
