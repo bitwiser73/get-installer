@@ -19,7 +19,7 @@ function Get-Installer()
             "Name" = "PowerToys"
             "Uri" = "https://github.com/microsoft/PowerToys"
             "Match" = "PowerToysSetup-[0-9\.]+-x64.exe"
-            "Install" = { Start-Process -Wait $Installer /install /quiet }
+            "Install" = { Start-Process -Wait $Installer "/install /quiet" }
         },
         @{
             "Name" = @("ripgrep", "rg")
