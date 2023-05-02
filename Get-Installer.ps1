@@ -924,12 +924,22 @@ function Get-RedirectedUrl {
         return
     }
 
-    $Downloads = @()
+    $SoftwareMap = @{}
     foreach ($Software in $Softwares)
     {
-        if ($Name -and -not $($Software.Name | Where-Object {$Name -contains $_}))
+        foreach ($SoftwareName in $Software.Name)
         {
-            continue
+            $SoftwareMap[$SoftwareName] = $Software
+        }
+    }
+
+    $Downloads = @()
+    foreach ($SoftwareName in $Name)
+    {
+        $Software = $SoftwareMap[$SoftwareName]
+        if (-not $Software)
+        {
+            Write-Error "Unknown application: $SoftwareName"
         }
 
         if ($Software.Warning)
@@ -1042,14 +1052,6 @@ function Get-RedirectedUrl {
             -DestinationPath $RepositoryDestination
 
         Write-Host "New repository: $RepositoryDestination"
-    }
-
-    foreach ($NameEntry in $Name)
-    {
-        if (-not $($Downloads | Where-Object { $_.Name -like $NameEntry }))
-        {
-            Write-Error "Unknown application: $NameEntry"
-        }
     }
 }
 
