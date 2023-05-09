@@ -330,22 +330,9 @@ function Get-Installer()
         @{
             "Name" = @("System Informer", "systeminformer", "si")
             "Uri" = "https://github.com/winsiderss/si-builds"
-            "Match" = "systeminformer-[0-9\.]+-setup.exe"
-            "Install" = {
-                & $Installer ; Sleep 1
-
-                $wshell.AppActivate('System Informer - Setup')
-                $wshell.Sendkeys('{ENTER}') ; Sleep 1
-                $wshell.Sendkeys('{RIGHT}') ; Sleep 1
-                $wshell.Sendkeys('{ENTER}') ; Sleep 1
-                if (Test-Path $ENV:PROGRAMFILES\SystemInformer)
-                {
-                    $wshell.Sendkeys('{RIGHT}') ; Sleep 1
-                    $wshell.Sendkeys('{ENTER}') ; Sleep 1
-                }
-
-                Start-Sleep 5 ; $wshell.Sendkeys('{ENTER}')
-            }
+            "Match" = "systeminformer-[0-9\.]+-bin.zip"
+            "Install" = { Expand-ArchiveFile $Installer -SubPath amd64 $ENV:PROGRAMFILES\SystemInformer }
+            "Configure" = { Register-AppPath $ENV:PROGRAMFILES\SystemInformer\SystemInformer.exe }
         },
         @{
             "Name" = @("vlc", "videolan")
