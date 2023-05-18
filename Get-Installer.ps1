@@ -646,14 +646,23 @@ function Get-RedirectedUrl {
 
         # Get the most recent version tag
         $TagName = $Request `
-            | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" } `
-            | Sort-Object -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value } `
+            | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" -and $_.tag_name -Match "[0-9\.]+" } `
+            | Sort-Object -ErrorAction Ignore -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value } `
             | Select-Object -First 1 -ExpandProperty tag_name
 
-        # Get the assets of the most recent version
-        $Assets = $Request `
-            | Where-Object { $_.tag_name -eq $TagName } `
-            | Select-Object -ExpandProperty assets
+        # Get the assets of the most recent version or date
+        if ($TagName)
+        {
+            $Assets = $Request `
+                | Where-Object { $_.tag_name -eq $TagName } `
+                | Select-Object -ExpandProperty assets
+        }
+        else
+        {
+            $Assets = $Request `
+                | Sort-Object -Descending { $_.published_at } `
+                | Select-Object -First 1 -ExpandProperty assets
+        }
 
         # Get the first asset matching specified filename regex
         $Asset = $Assets `
