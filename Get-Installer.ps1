@@ -1,3 +1,8 @@
+#$path = "<path to file>"
+#$shell = new-object -comobject "Shell.Application"
+#$item = $shell.Namespace(0).ParseName("$path")
+#$item.InvokeVerb("delete")
+
 function Get-Installer()
 {
     [CmdletBinding(SupportsShouldProcess)]
@@ -8,6 +13,7 @@ function Get-Installer()
         [Parameter(HelpMessage="Do not apply configuration")][Switch]$NoConfigure,
         [Parameter(HelpMessage="Show supported softwares")][Switch]$Show,
         [Parameter(HelpMessage="Get installers from a repository archive")][String]$Repository,
+        [Parameter(HelpMessage="Install softwares into a Windows sandbox")][String]$Sandbox,
         [Parameter(HelpMessage="Overwrite existing downloads")][Switch]$Force
     )
 
@@ -844,6 +850,41 @@ function Get-RedirectedUrl {
         $Software["Path"] = $Out
     }
 
+    function Edit-XmlNodes {
+        param (
+            [xml] $doc = $(throw "doc is a required parameter"),
+            [string] $xpath = $(throw "xpath is a required parameter"),
+            [string] $value = $(throw "value is a required parameter")
+        )
+            $Items = $xpath -split "/"
+            ForEach ($Item in $Items)
+            {
+                $Path = $doc.SelectNodes($path)
+                if ($null -eq $Path)
+                {
+                    $doc.CreateElement($Path)
+                }
+            }
+
+            Write-Verbose "go"
+            $nodes = $doc.SelectNodes($xpath)
+                
+            foreach ($node in $nodes) {
+                if ($null -ne $node) {
+                    if ($node.NodeType -eq "Element") {
+                        $node.InnerXml = $value
+                    }
+                    else {
+                        $node.Value = $value
+                    }
+                }
+                else {
+                    $Xml.CreateElement("")
+                }
+            }
+        }
+        
+
     function RefreshPathEnvironmentVariable
     {
         <#
@@ -876,6 +917,70 @@ function Get-RedirectedUrl {
     ###
     ### Main
     ###
+
+    if ($Sandbox)
+    {        
+        # $nodes = $MappedFolderXml.SelectNodes("//Configurationi")
+        # foreach ($node in $nodes) {
+        #     $importedNode = $xml.ImportNode($node, $true)
+        #     $existingNode = $xml.SelectSingleNode($node.Name)
+        #     if ($existingNode -eq $null) {
+        #         $xml.DocumentElement.AppendChild($importedNode)
+        #     }
+        # }
+
+        $Xml = [xml](Get-Content -Path $Sandbox)
+
+        $WsbTemp = New-TemporaryDirectory
+        $WsbReadOnly = Join-Path $WsbTemp "ReadOnly"
+        $WsbXml = Join-Path $WsbTemp "Sandbox.wsb"
+        
+        #$CommandXml = $Xml.CreateElement("Command")
+        #$CommandXml.InnerText = $WsbScript
+        #$Xml.Configuration.LogonCommand.AppendChild($CommandXml)
+
+        #$CommandXml = $Xml.SelectSingleNode("Configuration.LogonCommand.Command")
+        #$CommandXml.InnerText = $WsbScript
+
+        # $xpath = "//Configuration/MappedFolders/MappedFolder[3]"
+        # $element = $xml.SelectSingleNode($xpath)
+        # if ($element -eq $null) {
+        #     $parent = $xml.SelectSingleNode("//Configuration/MappedFolders")
+        #     $element = $xml.CreateElement("MappedFolder")
+        #     $parent.AppendChild($element)
+        # }
+
+        $WsbScript = Join-Path $WsbTemp "Get-Installer.ps1"
+        Get-Content $MyInvocation.PSCommandPath | Out-File $WsbScript
+        
+        Edit-XmlNodes $Xml -xpath "/Configuration/Foo/Bar/Hello" -value "world"
+
+        # Configure logon script
+        if ($null -eq $Xml.Configuration.LogonCommand.Command)
+        {
+            $Xml.Configuration.LogonCommand.AppendChild($Xml.CreateElement("Command"))
+        }
+
+        $xml.Configuration.LogonCommand.Command = $WsbScript
+
+        # Configure mapped folders
+        if ($null -eq $Xml.Configuration.MappedFolders) {
+            $Xml.Configuration.AppendChild($Xml.CreateElement("MappedFolders"))
+        }
+
+        $MappedFolderXml = $Xml.CreateElement("MappedFolder")
+        $MappedFolderXml.InnerXml = @"
+<HostFolder>$WsbReadOnly</HostFolder>
+<ReadOnly>true</ReadOnly>
+"@
+
+        $Xml.Configuration.MappedFolders.AppendChild($MappedFolderXml)
+        [System.Xml.Linq.XDocument]::Parse($Xml.OuterXml).ToString()  # | Out-File $WsbXml
+
+        Write-Verbose "New sandbox configuration: $WsbXml"
+        #Invoke-Item $WsbXml
+        return
+    }
 
     if ($Install -and -not (Test-IsAdministrator))
     {

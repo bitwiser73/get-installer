@@ -1,0 +1,21 @@
+<Configuration>
+<VGpu>Disable</VGpu>
+<Networking>Enable</Networking>
+<MappedFolders>
+   <MappedFolder>
+     <HostFolder>c:\Users\user\Downloads</HostFolder>
+     <ReadOnly>true</ReadOnly>
+   </MappedFolder>
+   <MappedFolder>
+     <HostFolder>c:\Users\user\Sandbox\ReadOnly</HostFolder>
+     <ReadOnly>true</ReadOnly>
+   </MappedFolder>
+   <MappedFolder>
+     <HostFolder>c:\Users\user\Sandbox\Out</HostFolder>
+     <ReadOnly>false</ReadOnly>
+   </MappedFolder>
+</MappedFolders>
+<LogonCommand>
+   <Command>explorer.exe C:\users\WDAGUtilityAccount\Desktop\Downloads</Command>
+</LogonCommand>
+</Configuration>
