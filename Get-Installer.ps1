@@ -852,38 +852,30 @@ function Get-RedirectedUrl {
 
     function Edit-XmlNodes {
         param (
-            [xml] $doc = $(throw "doc is a required parameter"),
-            [string] $xpath = $(throw "xpath is a required parameter"),
-            [string] $value = $(throw "value is a required parameter")
+            [Parameter(Mandatory)][Xml]$Xml,
+            [Parameter(Mandatory)][String]$XPath,
+            [Parameter()][string]$Value
         )
-            $Items = $xpath -split "/"
-            ForEach ($Item in $Items)
-            {
-                $Path = $doc.SelectNodes($path)
-                if ($null -eq $Path)
-                {
-                    $doc.CreateElement($Path)
-                }
+        $Items = $xpath -split "/" | Select-Object -Skip 1  # first item is empty string because of first '/'
+
+        $PreviousXPath = ""
+        foreach ($Item in $Items)
+        {
+            $CurrentXPath += "/$Item"
+            $CurrentXPath
+            $node = (Select-Xml -Xml $xml -XPath $CurrentXPath).Node
+            if ($node -eq $null) {
+                $parent = (Select-Xml -Xml $xml -XPath $PreviousXPath).Node
+                $newNode = $xml.CreateElement($Item)
+                $parent.AppendChild($newNode)
             }
 
-            Write-Verbose "go"
-            $nodes = $doc.SelectNodes($xpath)
-                
-            foreach ($node in $nodes) {
-                if ($null -ne $node) {
-                    if ($node.NodeType -eq "Element") {
-                        $node.InnerXml = $value
-                    }
-                    else {
-                        $node.Value = $value
-                    }
-                }
-                else {
-                    $Xml.CreateElement("")
-                }
-            }
+            $PreviousXPath = $CurrentXPath
         }
-        
+
+        $node = (Select-Xml -Xml $xml -XPath $CurrentXPath).Node
+        $node.InnerText = $Value
+    }
 
     function RefreshPathEnvironmentVariable
     {
@@ -953,7 +945,7 @@ function Get-RedirectedUrl {
         $WsbScript = Join-Path $WsbTemp "Get-Installer.ps1"
         Get-Content $MyInvocation.PSCommandPath | Out-File $WsbScript
         
-        Edit-XmlNodes $Xml -xpath "/Configuration/Foo/Bar/Hello" -value "world"
+        Edit-XmlNodes $Xml -xpath "/Configuration/Hello/World/Bazinga" -value "worldofgoo"
 
         # Configure logon script
         if ($null -eq $Xml.Configuration.LogonCommand.Command)
