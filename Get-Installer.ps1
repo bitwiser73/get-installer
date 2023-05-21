@@ -1,8 +1,3 @@
-#$path = "<path to file>"
-#$shell = new-object -comobject "Shell.Application"
-#$item = $shell.Namespace(0).ParseName("$path")
-#$item.InvokeVerb("delete")
-
 function Get-Installer()
 {
     [CmdletBinding(SupportsShouldProcess)]
@@ -856,7 +851,8 @@ function Get-RedirectedUrl {
             [Parameter(Mandatory)][String]$XPath,
             [Parameter()][string]$Value
         )
-        $Items = $xpath -split "/" | Select-Object -Skip 1  # first item is empty string because of first '/'
+        # first item is empty string because of first '/'
+        $Items = $xpath -split "/" | Select-Object -Skip 1
 
         $PreviousXPath = ""
         foreach ($Item in $Items)
@@ -911,16 +907,7 @@ function Get-RedirectedUrl {
     ###
 
     if ($Sandbox)
-    {        
-        # $nodes = $MappedFolderXml.SelectNodes("//Configurationi")
-        # foreach ($node in $nodes) {
-        #     $importedNode = $xml.ImportNode($node, $true)
-        #     $existingNode = $xml.SelectSingleNode($node.Name)
-        #     if ($existingNode -eq $null) {
-        #         $xml.DocumentElement.AppendChild($importedNode)
-        #     }
-        # }
-
+    {
         $Xml = [xml](Get-Content -Path $Sandbox)
 
         $WsbTemp = New-TemporaryDirectory
