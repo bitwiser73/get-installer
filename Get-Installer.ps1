@@ -166,6 +166,10 @@ function Get-Installer()
                 $InstallOutput `
                   | Where-Object { $_.Name -in @("procexp.exe", "procmon.exe", "autoruns.exe") } `
                   | ForEach-Object { Register-AppPath $_ }
+
+                  Set-ItemProperty "HKCU:\Software\Sysinternals\Autoruns" -Name Theme -Value "DarkTheme" -Force
+                  Set-ItemProperty "HKCU:\Software\Sysinternals\Process Monitor" -Name Theme -Value "DarkTheme" -Force
+                  Set-ItemProperty "HKCU:\Software\Sysinternals\Process Explorer" -Name Theme -Value "DarkTheme" -Force
             }
         },
         @{
