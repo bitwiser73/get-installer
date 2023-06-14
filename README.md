@@ -17,6 +17,7 @@ vscode: install 'C:\Foo\VSCodeSetup-x64-1.72.2.exe'
 - Get directly latest software from authors
 - Download installers and eventually install and configure them (PATH, ...)
 - Easy to review or add new software (support Github API, direct links and webpage analysis as software)
+- Create a repository archive with many installers for later use (offline installations...)
 
 ## Supported installers
 
@@ -102,4 +103,25 @@ Part of *Get-Installer.ps1*
             "Install" = { Start-Process -Wait $Installer /quiet }
         }
     )
+```
+
+## Create and use repository archive
+For some situations, like when there is no internet connection available, you can prepare a repository archive that will store selected installers for later use.
+
+```ps1
+# Prepare an archive that stores rg, fd, jq installers and a manifest
+.\Get-Installer.ps1 rg, fd, jq -Destination c:\users\fb\Desktop\installers.zip
+
+ripgrep: https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-i686-pc-windows-msvc.zip -> "C:\Users\fb\AppData\Local\Temp\99ac115b-7294-4af6-95ee-2b49522ee307\ripgrep-13.0.0-i686-pc-windows-msvc.zip"
+fd: https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-v8.7.0-i686-pc-windows-msvc.zip -> "C:\Users\fb\AppData\Local\Temp\99ac115b-7294-4af6-95ee-2b49522ee307\fd-v8.7.0-i686-pc-windows-msvc.zip"
+jq: https://github.com/jqlang/jq/releases/download/jq-1.6/jq-win64.exe -> "C:\Users\fb\AppData\Local\Temp\99ac115b-7294-4af6-95ee-2b49522ee307\jq-win64.exe"
+New repository: c:\users\fb\Desktop\installers.zip
+
+
+# Install rg from the repository archive
+.\Get-Installer.ps1 rg -install -Repository e:\installers.zip
+
+ripgrep: zip://e:\installers.zip\ripgrep-13.0.0-i686-pc-windows-msvc.zip -> "C:\Users\joe\Downloads\ripgrep-13.0.0-i686-pc-windows-msvc.zip"
+ripgrep: install 'C:\Users\joe\Downloads\ripgrep-13.0.0-i686-pc-windows-msvc.zip'
+ripgrep: configure 'C:\Users\joe\Downloads\ripgrep-13.0.0-i686-pc-windows-msvc.zip'
 ```
