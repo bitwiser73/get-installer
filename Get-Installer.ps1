@@ -74,11 +74,16 @@ function Get-Installer()
             "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\CMake\bin }
         },
         @{
-            "Name" = "Git"
+            "Name" = "git"
             "Uri" = "https://github.com/git-for-windows/git"
             "Match" = "Git-[0-9\.]+-64-bit.exe"
             "Install" = { Start-Process -Wait $Installer /silent }
             "Configure" = { Add-EnvPath $ENV:PROGRAMFILES\Git\usr\bin }
+        },
+        @{
+            "Name" = "GitHub Desktop"
+            "Uri" = "https://central.github.com/deployments/desktop/desktop/latest/win32?format=msi"
+            "FileName" = "GitHubDesktopSetup-x64.msi"
         },
         @{
             "Name" = "Wincompose"
