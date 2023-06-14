@@ -34,8 +34,9 @@ Name                                                  Uri
 {fd}                                                  https://github.com/sharkdp/fd
 {Firefox}                                             https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en…
 {Ghidra}                                              https://github.com/NationalSecurityAgency/ghidra
-{Git}                                                 https://github.com/git-for-windows/git
+{git}                                                 https://github.com/git-for-windows/git
 {git-absorb}                                          https://github.com/tummychow/git-absorb
+{GitHub Desktop}                                      https://central.github.com/deployments/desktop/desktop/latest/win32?format=msi
 {HxD}                                                 https://mh-nexus.de/downloads/HxDSetup.zip
 {IDA, IDA Free, IDA-Free}                             https://hex-rays.com/ida-free/
 {ImHex}                                               https://github.com/WerWolv/ImHex
@@ -44,28 +45,31 @@ Name                                                  Uri
 {KeepassXC}                                           https://github.com/keepassxreboot/keepassxc
 {Kerberos, kfw, Kerberos for Windows}                 https://web.mit.edu/kerberos/dist/index.html
 {Nextcloud}                                           https://github.com/nextcloud/desktop
-{Nushell}                                             https://github.com/nushell/nushell
+{Nushell, nu}                                         https://github.com/nushell/nushell
 {OSFMount}                                            https://www.osforensics.com/downloads/osfmount.exe
 {p4merge}                                             https://www.perforce.com/downloads/perforce/r22.1/bin.ntx64/p4vinst64.msi
 {posh-git}                                            https://github.com/dahlbyk/posh-git
-{Powershell}                                          https://github.com/PowerShell/PowerShell
+{Powershell, pwsh}                                    https://github.com/PowerShell/PowerShell
 {PowerToys}                                           https://github.com/microsoft/PowerToys
 {ProcessHacker, Process Hacker}                       https://github.com/processhacker/processhacker
 {Python3, Python 3}                                   https://www.python.org/downloads/
 {ripgrep, rg}                                         https://github.com/BurntSushi/ripgrep
-{rufus}                                               https://github.com/pbatard/rufus
+{Rufus}                                               https://github.com/pbatard/rufus
 {Rust}                                                https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.e…
 {Sublime Text, subl}                                  https://www.sublimetext.com/download_thanks?target=win-x64
 {Sysinternals, SysinternalsSuite, Sysinternals Suite} https://download.sysinternals.com/files/SysinternalsSuite.zip
+{System Informer, systeminformer, si}                 https://github.com/winsiderss/si-builds
 {Total Commander, TotalCommander, tcmd, totalcmd}     https://www.ghisler.com/download.htm
-{vcredist17, vcredist_17, vcredist_17_x64}            https://aka.ms/vs/17/release/vc_redist.x64.exe
-{vscode, Visual Studio Code, code}                    https://code.visualstudio.com/sha/download?build=stable&os=win32-x64
+{vcredist, vcredist17, vcredist17_x64}                https://aka.ms/vs/17/release/vc_redist.x64.exe
+{Visual Studio Code, vscode, code}                    https://code.visualstudio.com/sha/download?build=stable&os=win32-x64
+{vlc, videolan}                                       https://mirrors.ircam.fr/pub/videolan/vlc/last/win64/
 {Wincompose}                                          https://github.com/samhocevar/wincompose
-{windirstat}                                          https://windirstat.mirror.wearetriple.com//wds_current_setup.exe
+{WinDirStat}                                          https://windirstat.mirror.wearetriple.com/wds_current_setup.exe
 {WinObjEx64}                                          https://github.com/hfiref0x/WinObjEx64
-{wireshark}                                           https://www.wireshark.org/download.html
+{Wireshark}                                           https://www.wireshark.org/download.html
 {x64dbg}                                              https://github.com/x64dbg/x64dbg
 {XMind}                                               https://www.xmind.app/zen/download/win64
+{yara}                                                https://github.com/VirusTotal/yara
 {Zeal}                                                https://github.com/zealdocs/zeal
 ```
 
