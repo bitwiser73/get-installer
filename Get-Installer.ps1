@@ -627,7 +627,12 @@ function Get-RedirectedUrl {
 
         ForEach ($Item in $Manifest)
         {
-            if ($Item.Name -eq $Software.Name)
+            if ($Item.Name -isnot [Array])
+            {
+                $Item.Name = @($Item.Name)
+            }
+
+            if ($Item.Name[0] -in $Software.Name)
             {
                 $Software.FileName = $Item.FileName
                 $Software.DownloadUri = "zip://" + $(Join-Path $Path $Item.FileName)
