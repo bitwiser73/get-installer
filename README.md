@@ -54,7 +54,6 @@ Name                                                  Uri
 {ripgrep, rg}                                         https://github.com/BurntSushi/ripgrep
 {rufus}                                               https://github.com/pbatard/rufus
 {Rust}                                                https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.e…
-{Sharpkeys}                                           https://github.com/randyrants/sharpkeys
 {Sublime Text, subl}                                  https://www.sublimetext.com/download_thanks?target=win-x64
 {Sysinternals, SysinternalsSuite, Sysinternals Suite} https://download.sysinternals.com/files/SysinternalsSuite.zip
 {Total Commander, TotalCommander, tcmd, totalcmd}     https://www.ghisler.com/download.htm

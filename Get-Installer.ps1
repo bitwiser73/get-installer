@@ -92,12 +92,6 @@ function Get-Installer()
             "Install" = { Start-Process -PassThru $Installer -ArgumentList "/silent" | Wait-Process }
         },
         @{
-            "Name" = "Sharpkeys"
-            "Uri" = "https://github.com/randyrants/sharpkeys"
-            "Match" = "sharpkeys[0-9]+.msi"
-            "Install" = { Start-Process -Wait $Installer /quiet }
-        },
-        @{
             "Name" = "Nextcloud"
             "Uri" = "https://github.com/nextcloud/desktop"
             "Match" = "Nextcloud-[0-9\.]+-x64.msi"
