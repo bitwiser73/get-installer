@@ -258,7 +258,8 @@ function Get-Installer()
         },
         @{
             "Name" = "WinDirStat"
-            "Uri" = "https://windirstat.mirror.wearetriple.com/wds_current_setup.exe"
+            "Uri" = {  Get-RedirectedUrl "https://windirstat.net/wds_current_setup.exe" }
+            "FileName" = "windirstat_setup.exe"
             "Install" = { Start-Process -Wait $Installer /S }
         },
         @{
