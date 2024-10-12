@@ -86,12 +86,6 @@ function Get-Installer()
             "FileName" = "GitHubDesktopSetup-x64.msi"
         },
         @{
-            "Name" = "Wincompose"
-            "Uri" = "https://github.com/samhocevar/wincompose"
-            "Match" = "WinCompose-Setup-[0-9\.]+.exe"
-            "Install" = { Start-Process -PassThru $Installer -ArgumentList "/silent" | Wait-Process }
-        },
-        @{
             "Name" = "Nextcloud"
             "Uri" = "https://github.com/nextcloud/desktop"
             "Match" = "Nextcloud-[0-9\.]+-x64.msi"
