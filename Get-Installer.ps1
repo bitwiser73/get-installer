@@ -92,12 +92,6 @@ function Get-Installer()
             "Install" = { Start-Process -Wait $Installer /quiet }
         },
         @{
-            "Name" = @("ProcessHacker", "Process Hacker")
-            "Uri" = "https://github.com/processhacker/processhacker"
-            "Match" = "processhacker-[0-9\.]+-setup.exe"
-            "Install" = { Start-Process -Wait $Installer /silent }
-        },
-        @{
             "Name" = "KeepassXC"
             "Uri" = "https://github.com/keepassxreboot/keepassxc"
             "Match" = "KeePassXC-[0-9\.]+-Win64.msi"
