@@ -341,8 +341,14 @@ function Get-Installer()
         },
         @{
             "Name" = @("vlc", "videolan")
-            "Uri" = "https://mirrors.ircam.fr/pub/videolan/vlc/last/win64/"
-            "Match" = "(vlc-[0-9\.]+-win64.msi)"
+            "Uri" = {
+                $r = Invoke-WebRequest -UseBasicParsing "https://www.videolan.org/vlc/download-windows.fr.html"
+                $r.RawContent -Match "/get.videolan.org/vlc/([0-9\.]+)/win64/vlc-[0-9\.]+-win64.exe" | Out-Null
+                $Version = $Matches[1]
+                $r = Invoke-WebRequest -UseBasicParsing "https://get.videolan.org/vlc/${Version}/win64/vlc-${Version}-win64.exe"
+                $r.RawContent -Match "(https://.*vlc/${Version}/win64/vlc-${Version}-win64.exe)" | Out-Null
+                return $Matches[1]
+            }
             "Install" = { Start-Process -Wait $Installer /quiet }
         }
     )
