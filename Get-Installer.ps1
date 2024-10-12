@@ -335,8 +335,8 @@ function Get-Installer()
         @{
             "Name" = @("System Informer", "systeminformer", "si")
             "Uri" = "https://github.com/winsiderss/si-builds"
-            "Match" = "systeminformer-[0-9\.]+-bin.zip"
-            "Install" = { Expand-ArchiveFile $Installer -SubPath amd64 $ENV:PROGRAMFILES\SystemInformer }
+            "Match" = "systeminformer-[0-9\.]+-release-setup.exe"
+            "Install" = { Start-Process -Wait $Installer "install -silent" }
             "Configure" = { Register-AppPath $ENV:PROGRAMFILES\SystemInformer\SystemInformer.exe }
         },
         @{
