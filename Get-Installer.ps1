@@ -653,8 +653,8 @@ function Get-RedirectedUrl {
 
         # Add -UseBasicParsing for compatibility with Powershell 2 vanilla configuration
         $Request = Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json
+        Write-Verbose "Request: Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json"
 
-        # Get the most recent version tag
         $TagName = $Request `
             | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" -and $_.tag_name -Match "[0-9\.]+" } `
             | Sort-Object -ErrorAction Ignore -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value } `
