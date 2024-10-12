@@ -228,7 +228,7 @@ function Get-Installer()
         @{
             "Name" = "Wireshark"
             "Uri" = "https://www.wireshark.org/download.html"
-            "Match" = "(https://.*dl.wireshark.org/win64/Wireshark-win64-[0-9]+\.[0-9]+\.[0-9]+\.exe)"
+            "Match" = "(https://[0-9a-zA-Z\.]+dl.wireshark.org/win64/Wireshark-[0-9]+\.[0-9]+\.[0-9]+-x64\.exe)"
             "Install" = { Write-Warning "Install manually because of npcap requirement: $Installer" }
         },
         @{
