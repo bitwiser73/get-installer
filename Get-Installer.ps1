@@ -220,12 +220,6 @@ function Get-Installer()
             "Install" = { Start-Process -Wait $Installer /AHMGDU }
         },
         @{
-            "Name" = @("IDA", "IDA Free", "IDA-Free")
-            "Uri" = "https://hex-rays.com/ida-free/"
-            "Match" = "(https://.*idafree[0-9]+_windows.exe)"
-            "Install" = { & $Installer --mode unattended }
-        },
-        @{
             "Name" = "x64dbg"
             "Uri" = "https://github.com/x64dbg/x64dbg"
             "Match" = "(snapshot_.*\.zip)"
