@@ -655,10 +655,21 @@ function Get-RedirectedUrl {
         $Request = Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json
         Write-Verbose "Request: Invoke-WebRequest -UseBasicParsing ${ReleasesApi} | ConvertFrom-Json"
 
-        $TagName = $Request `
+        # Get the most recent version tag with assets
+        $Items = $Request `
             | Where-Object { $_.tag_name -NotMatch ".*rc.*|.*beta.*|.*preview.*" -and $_.tag_name -Match "[0-9\.]+" } `
-            | Sort-Object -ErrorAction Ignore -Descending { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value } `
+            | Sort-Object -ErrorAction Ignore -Descending `
+                { [Version][Regex]::Matches($_.tag_name, "([0-9\.]*[0-9]+)").Groups[1].Value }
+
+        $TagName = $Items `
+            | Where-Object { $_.Assets } `
             | Select-Object -First 1 -ExpandProperty tag_name
+
+        $TagNameIncludingNoAssets = $Items | Select-Object -First 1 -ExpandProperty tag_name
+        if ($TagNameIncludingNoAssets -ne $TagName)
+        {
+            Write-Host "$($Software.Name[0]):" -ForegroundColor Red "No assets for tag '$TagNameIncludingNoAssets'"
+        }
 
         # Get the assets of the most recent version or date
         if ($TagName)
